@@ -1,5 +1,7 @@
 import 'package:event_book/pages/bottomNav.dart';
+import 'package:event_book/pages/details.dart';
 import 'package:event_book/pages/home.dart';
+import 'package:event_book/pages/signup.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -33,7 +35,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home:BottomNav(),
+      home:Signup(),
     );
   }
 }
