@@ -1,3 +1,4 @@
+import 'package:event_book/admin/upload_event.dart';
 import 'package:event_book/pages/bottomNav.dart';
 import 'package:event_book/pages/details.dart';
 import 'package:event_book/pages/home.dart';
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home:Signup(),
+      home:UploadEvent(),
     );
   }
 }

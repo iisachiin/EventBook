@@ -1,3 +1,4 @@
+import 'package:event_book/pages/bottomNav.dart';
 import 'package:event_book/services/database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -40,8 +41,15 @@ class AuthMethods {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.green,
-            content: Text("Registered successfully"),
+            content: Text(
+              "Registered successfully",
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            ),
           ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => BottomNav()),
         );
       });
     }
