@@ -17,6 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
+	<string>We required camera access to connect to a call </string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We required microphone access to connect to a call</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow access to photos library</string>
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>

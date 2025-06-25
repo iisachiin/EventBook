@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:event_book/services/database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:random_string/random_string.dart';
 
 class UploadEvent extends StatefulWidget {
   const UploadEvent({super.key});
@@ -11,6 +14,10 @@ class UploadEvent extends StatefulWidget {
 }
 
 class _UploadEventState extends State<UploadEvent> {
+  TextEditingController namecontroller = new TextEditingController();
+  TextEditingController pricecontroller = new TextEditingController();
+  TextEditingController detailscontroller = new TextEditingController();
+
   final List<String> eventCatagory = ["Music", "Clothing", "Food", "Festival"];
   String? value;
   final ImagePicker _picker = ImagePicker();
@@ -50,16 +57,29 @@ class _UploadEventState extends State<UploadEvent> {
                   ),
                 ],
               ),
+
+              SizedBox(height: 20),
               selectedImage != null
-                  ? Image.file(selectedImage!, height: 90, width: 90)
+                  ? Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.file(
+                        selectedImage!,
+                        height: 150,
+                        width: 150,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  )
                   : Center(
                     child: GestureDetector(
                       onTap: () {
                         getImage();
                       },
                       child: Container(
-                        height: 90,
-                        width: 90,
+                        height: 150,
+                        width: 150,
+
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.black45, width: 2.0),
                           borderRadius: BorderRadius.circular(20),
@@ -86,6 +106,7 @@ class _UploadEventState extends State<UploadEvent> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: TextField(
+                  controller: namecontroller,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: "Enter Event Name",
@@ -110,13 +131,14 @@ class _UploadEventState extends State<UploadEvent> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: TextField(
+                  controller: pricecontroller,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: "Enter Price",
                   ),
                 ),
               ),
-        
+
               SizedBox(height: 20.0),
               Text(
                 "Ticket Price",
@@ -127,7 +149,7 @@ class _UploadEventState extends State<UploadEvent> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-        
+
               // SizedBox(height: 20.0),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 20.0),
@@ -159,6 +181,24 @@ class _UploadEventState extends State<UploadEvent> {
                   ),
                 ),
               ),
+              SizedBox(height: 20),
+              Row(
+                children: [
+                  Icon(Icons.calendar_month, color: Colors.blue, size: 30),
+                  SizedBox(width: 10),
+                  Text(
+                    DateFormat('yyyy-mm-dd').format(selectedDate!),
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Icon(Icons.alarm_add_outlined, color: Colors.blue, size: 30),
+                  Text(formatTimeOfDay(selectedTime!), ),
+                ],
+              ),
               SizedBox(height: 20.0),
               Text(
                 "Event Details",
@@ -177,6 +217,7 @@ class _UploadEventState extends State<UploadEvent> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: TextField(
+                  controller: detailscontroller,
                   maxLines: 6,
                   decoration: InputDecoration(
                     border: InputBorder.none,
@@ -185,21 +226,67 @@ class _UploadEventState extends State<UploadEvent> {
                 ),
               ),
               SizedBox(height: 20.0),
-              Center(
-                child: Container(
-                  width: 200,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: Color(0xff6351ec),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
-                    child: Text(
-                      "Upload",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () async {
+                  // This code is used to upload the event images on the FireBase
+
+                  // String addId = randomAlphaNumeric(10);
+                  // Reference firebaseStorageRef = FirebaseStorage.instance
+                  //     .ref()
+                  //     .child("blogImages")
+                  //     .child(addId);
+                  // final UploadTask task = firebaseStorageRef.putFile(
+                  //   selectedImage!,
+                  // );
+                  // var downloadUrl = await (await task).ref.getDownloadURL();
+                  String id = randomAlphaNumeric(10);
+                  Map<String, dynamic> uploadevent = {
+                    // "Image": downloadUrl, // use it when we upload to fire base
+                    "Image": "",
+                    "Name": namecontroller.text,
+                    "Price": pricecontroller.text,
+                    "Category": value,
+                    "Detail": detailscontroller.text,
+                  };
+                  await DatabaseMethods().addEvent(uploadevent, id).then((
+                    value,
+                  ) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: Colors.green,
+                        content: Text(
+                          "Uploaded successfully",
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    );
+                    setState(() {
+                      namecontroller.text = "";
+                      pricecontroller.text = "";
+                      detailscontroller.text = "";
+                      selectedImage = null;
+                    });
+                  });
+                },
+                child: Center(
+                  child: Container(
+                    width: 200,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Color(0xff6351ec),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Upload",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
