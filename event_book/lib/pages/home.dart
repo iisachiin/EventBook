@@ -21,116 +21,302 @@ class _HomeState extends State<Home> {
     return StreamBuilder<QuerySnapshot>(
       stream: eventStream,
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-          return ListView.builder(
-            padding: EdgeInsets.zero,
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, index) {
-              DocumentSnapshot ds = snapshot.data!.docs[index];
-              Map<String, dynamic> eventData =
-                  ds.data() as Map<String, dynamic>;
+        if (snapshot.hasData) {
+          List<DocumentSnapshot> events = snapshot.data!.docs;
 
-              return Container(
-                margin: EdgeInsets.only(bottom: 20.0, right: 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(),
-                      child: Stack(
+          // If Firestore has data, use it; otherwise show default events
+          if (events.isNotEmpty) {
+            return ListView.builder(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: events.length,
+              itemBuilder: (context, index) {
+                DocumentSnapshot ds = events[index];
+                Map<String, dynamic> eventData =
+                    ds.data() as Map<String, dynamic>;
+
+                return Container(
+                  margin: EdgeInsets.only(bottom: 20.0, right: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(
+                                eventData['imageUrl'] ?? "images/Event.jpg",
+                                height: 200,
+                                width: MediaQuery.of(context).size.width,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    "images/Event.jpg",
+                                    height: 200,
+                                    width: MediaQuery.of(context).size.width,
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(left: 10.0, top: 10.0),
+                              width: 50,
+                              decoration: BoxDecoration(
+                                color: Color(0xff6351ec),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  eventData['date'] ?? "Aug\n24",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 5.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              eventData['imageUrl'] ?? "images/Event.jpg",
-                              height: 200,
-                              width: MediaQuery.of(context).size.width,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  "images/Event.jpg",
-                                  height: 200,
-                                  width: MediaQuery.of(context).size.width,
-                                  fit: BoxFit.cover,
-                                );
-                              },
+                          Expanded(
+                            child: Text(
+                              eventData['title'] ?? "Event Title",
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                          Container(
-                            margin: EdgeInsets.only(left: 10.0, top: 10.0),
-                            width: 50,
-                            decoration: BoxDecoration(
-                              color: Color(0xff6351ec),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Center(
-                              child: Text(
-                                eventData['date'] ?? "Aug\n24",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20.0),
+                            child: Text(
+                              "\$${eventData['price'] ?? '50'}",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xff6351ec),
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    SizedBox(height: 5.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            eventData['title'] ?? "Event Title",
-                            textAlign: TextAlign.left,
+                      Row(
+                        children: [
+                          Icon(Icons.location_on),
+                          Expanded(
+                            child: Text(
+                              eventData['location'] ?? "Location",
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          } else {
+            // Show default events when Firestore is empty
+            return ListView(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              // physics: NeverScrollableScrollPhysics(),
+              children: [
+                // Default Event 1
+                Container(
+                  margin: EdgeInsets.only(bottom: 20.0, right: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.asset(
+                                "images/Event.jpg",
+                                height: 200,
+                                width: MediaQuery.of(context).size.width,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(left: 10.0, top: 10.0),
+                              width: 50,
+                              decoration: BoxDecoration(
+                                color: Color(0xff6351ec),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Aug\n24",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 5.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Arijit Singh Concert",
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 18.0,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 20.0),
-                          child: Text(
-                            "\$${eventData['price'] ?? '50'}",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color(0xff6351ec),
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20.0),
+                            child: Text(
+                              "\$50",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xff6351ec),
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.location_on),
-                        Expanded(
-                          child: Text(
-                            eventData['location'] ?? "Location",
-                            textAlign: TextAlign.left,
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Icon(Icons.location_on),
+                          Text(
+                            "Bihar, India",
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 22.0,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            },
-          );
+                // Default Event 2
+                Container(
+                  margin: EdgeInsets.only(bottom: 20.0, right: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.asset(
+                                "images/Event1.jpg",
+                                height: 200,
+                                width: MediaQuery.of(context).size.width,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(left: 10.0, top: 10.0),
+                              width: 50,
+                              decoration: BoxDecoration(
+                                color: Color(0xff6351ec),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Aug\n24",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 5.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Pritam chakraborty",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20.0),
+                            child: Text(
+                              "\$50",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xff6351ec),
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Icon(Icons.location_on),
+                          Text(
+                            "Jharkhand, India",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 22.0,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }
         } else if (snapshot.hasError) {
           return Center(
             child: Text(
