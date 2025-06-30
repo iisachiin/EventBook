@@ -72,7 +72,7 @@ class _HomeState extends State<Home> {
                               ),
                               child: Center(
                                 child: Text(
-                                  eventData['date'] ?? "Aug\n24",
+                                  eventData['Date'] ?? "Aug\n24",
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.white,
@@ -91,7 +91,7 @@ class _HomeState extends State<Home> {
                         children: [
                           Expanded(
                             child: Text(
-                              eventData['title'] ?? "Event Title",
+                              eventData['Name'] ?? "Event Title",
                               textAlign: TextAlign.left,
                               style: TextStyle(
                                 color: Colors.black,
@@ -103,7 +103,7 @@ class _HomeState extends State<Home> {
                           Padding(
                             padding: const EdgeInsets.only(right: 20.0),
                             child: Text(
-                              "\$${eventData['price'] ?? '50'}",
+                              "\$${eventData['Price'] ?? '50'}",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Color(0xff6351ec),
