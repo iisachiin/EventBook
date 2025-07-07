@@ -16,6 +16,7 @@ class UploadEvent extends StatefulWidget {
 
 class _UploadEventState extends State<UploadEvent> {
   TextEditingController namecontroller = new TextEditingController();
+  TextEditingController locationcontroller = new TextEditingController();
   TextEditingController pricecontroller = new TextEditingController();
   TextEditingController detailscontroller = new TextEditingController();
 
@@ -183,6 +184,31 @@ class _UploadEventState extends State<UploadEvent> {
                   ),
                 ),
               ),
+              SizedBox(height: 20.0),
+              Text(
+                "Event Location",
+                // textAlign:TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  color: Color(0xffececf8),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextField(
+                  controller: locationcontroller,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: "Enter Location",
+                  ),
+                ),
+              ),
 
               SizedBox(height: 20.0),
               Text(
@@ -226,6 +252,9 @@ class _UploadEventState extends State<UploadEvent> {
                   ),
                 ),
               ),
+
+
+
               SizedBox(height: 20),
               Row(
                 children: [
@@ -350,6 +379,7 @@ class _UploadEventState extends State<UploadEvent> {
                     "Image": " ",
                     "Name": namecontroller.text,
                     "Price": pricecontroller.text,
+                    "Location":locationcontroller.text,
                     "Category": value,
                     "Detail": detailscontroller.text,
                     "Date": DateFormat('yyyy-MM-dd').format(selectedDate),

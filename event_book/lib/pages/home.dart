@@ -1,5 +1,8 @@
 import "package:cloud_firestore/cloud_firestore.dart";
+import "package:event_book/pages/details.dart";
+import "package:event_book/services/database.dart";
 import "package:flutter/material.dart";
+import "package:intl/intl.dart";
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -11,10 +14,16 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   late Stream<QuerySnapshot> eventStream;
 
+  ontheload() async {
+    eventStream = await DatabaseMethods().getallEvents();
+    setState(() {});
+  }
+
+  //
   @override
   void initState() {
+    ontheload();
     super.initState();
-    eventStream = FirebaseFirestore.instance.collection('events').snapshots();
   }
 
   Widget allEvents() {
@@ -29,108 +38,128 @@ class _HomeState extends State<Home> {
             return ListView.builder(
               padding: EdgeInsets.zero,
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              // physics: NeverScrollableScrollPhysics(),
               itemCount: events.length,
               itemBuilder: (context, index) {
                 DocumentSnapshot ds = events[index];
+                String inputDate = ds["Date"];
+                DateTime parseDate = DateTime.parse(inputDate);
+                String formattedDate = DateFormat('MMM, dd').format(parseDate);
                 Map<String, dynamic> eventData =
                     ds.data() as Map<String, dynamic>;
 
-                return Container(
-                  margin: EdgeInsets.only(bottom: 20.0, right: 20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(),
-                        child: Stack(
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Details(
+                          name: eventData['Name'] ?? "Event Title",
+                          date: eventData['Date'] ?? "",
+                          location: eventData['Location'] ?? "Location",
+                          price: eventData['Price']?.toString() ?? "50",
+                          image: eventData['imageUrl'] ?? "images/Event.jpg",
+                          detail: eventData['Detail'] ?? "",
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 20.0, right: 20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(),
+                          child: Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  eventData['imageUrl'] ?? "images/Event.jpg",
+                                  height: 200,
+                                  width: MediaQuery.of(context).size.width,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      "images/Event.jpg",
+                                      height: 200,
+                                      width: MediaQuery.of(context).size.width,
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(left: 10.0, top: 10.0),
+                                width: 50,
+                                decoration: BoxDecoration(
+                                  color: Color(0xff6351ec),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    formattedDate,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 5.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image.network(
-                                eventData['imageUrl'] ?? "images/Event.jpg",
-                                height: 200,
-                                width: MediaQuery.of(context).size.width,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    "images/Event.jpg",
-                                    height: 200,
-                                    width: MediaQuery.of(context).size.width,
-                                    fit: BoxFit.cover,
-                                  );
-                                },
+                            Expanded(
+                              child: Text(
+                                eventData['Name'] ?? "Event Title",
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                            Container(
-                              margin: EdgeInsets.only(left: 10.0, top: 10.0),
-                              width: 50,
-                              decoration: BoxDecoration(
-                                color: Color(0xff6351ec),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  eventData['Date'] ?? "Aug\n24",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 20.0),
+                              child: Text(
+                                "\$${eventData['Price'] ?? '50'}",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Color(0xff6351ec),
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      SizedBox(height: 5.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              eventData['Name'] ?? "Event Title",
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
+                        Row(
+                          children: [
+                            Icon(Icons.location_on),
+                            Expanded(
+                              child: Text(
+                                eventData['Location'] ?? "Location",
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 22.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 20.0),
-                            child: Text(
-                              "\$${eventData['Price'] ?? '50'}",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Color(0xff6351ec),
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.location_on),
-                          Expanded(
-                            child: Text(
-                              eventData['location'] ?? "Location",
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 22.0,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

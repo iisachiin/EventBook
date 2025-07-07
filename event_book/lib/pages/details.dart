@@ -1,13 +1,24 @@
 import "package:flutter/material.dart";
 
 class Details extends StatefulWidget {
-  const Details({super.key});
+  final String image, name, location, date, detail, price;
+  const Details({
+    super.key,
+    required this.date,
+    required this.detail,
+    required this.image,
+    required this.location,
+    required this.name,
+    required this.price,
+  });
 
   @override
   State<Details> createState() => _DetailsState();
 }
 
 class _DetailsState extends State<Details> {
+  int ticketCount = 1;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +66,7 @@ class _DetailsState extends State<Details> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Arijit Singh Concert",
+                              widget.name,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 25.0,
@@ -67,7 +78,7 @@ class _DetailsState extends State<Details> {
                                 Icon(Icons.calendar_month, color: Colors.white),
                                 SizedBox(width: 10),
                                 Text(
-                                  "04 June 2025",
+                                  widget.date,
                                   style: TextStyle(
                                     color: Colors.white70,
                                     fontSize: 20,
@@ -80,7 +91,7 @@ class _DetailsState extends State<Details> {
                                 ),
                                 SizedBox(width: 10),
                                 Text(
-                                  "Bihar, India",
+                                  widget.location,
                                   style: TextStyle(
                                     color: Colors.white70,
                                     fontSize: 20,
@@ -112,7 +123,7 @@ class _DetailsState extends State<Details> {
             Padding(
               padding: const EdgeInsets.only(left: 20.0),
               child: Text(
-                "Lorem ipsum is a placeholder text commonly used in design, publishing, and web development. It mimics natural language to demonstrate visual layout and typography without using meaningful content. Derived from Latin, it helps focus on layout and design rather than readable content, especially during early stages of development or prototyping.",
+                widget.detail,
                 style: TextStyle(
                   color: Colors.black87,
                   fontSize: 18.0,
@@ -141,21 +152,35 @@ class _DetailsState extends State<Details> {
                     ),
                     child: Column(
                       children: [
-                        Text(
-                          "+",
-                          style: TextStyle(color: Colors.black, fontSize: 25),
+                        GestureDetector(
+                          onTap: () {
+                            ticketCount++;
+                            setState(() {});
+                          },
+                          child: Text(
+                            "+",
+                            style: TextStyle(color: Colors.black, fontSize: 25),
+                          ),
                         ),
                         Text(
-                          "3",
+                          ticketCount.toString(),
                           style: TextStyle(
                             color: Color(0xff6351ec),
                             fontSize: 25,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
-                          "-",
-                          style: TextStyle(color: Colors.black, fontSize: 25),
+                        GestureDetector(
+                          onTap: () {
+                            if (ticketCount > 1) {
+                              ticketCount--;
+                              setState(() {});
+                            }
+                          },
+                          child: Text(
+                            "-",
+                            style: TextStyle(color: Colors.black, fontSize: 25),
+                          ),
                         ),
                       ],
                     ),
@@ -165,20 +190,22 @@ class _DetailsState extends State<Details> {
             ),
             SizedBox(height: 20.0),
             Padding(
-              padding: const EdgeInsets.only(left: 20.0,right: 10),
+              padding: const EdgeInsets.only(left: 20.0, right: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Amount : \$150",
+                    "Amount : \$ ${ticketCount * double.parse(widget.price)}",
                     style: TextStyle(
                       color: Color(0xff6351ec),
                       fontSize: 25.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  SizedBox(width: 10),
                   Container(
-                    width: 180,
+                    margin: EdgeInsets.only(right: 10),
+                    width: 160,
                     height: 50,
                     decoration: BoxDecoration(
                       color: Color(0xff6351ec),
